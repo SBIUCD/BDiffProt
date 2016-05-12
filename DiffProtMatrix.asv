@@ -1,0 +1,25 @@
+function [P] = DiffProtMatrix(PCTRL1,PTRT1,a,b,k,m0,t0)
+%% P_CTRL, P_TRT
+Y=[PCTRL';PTRT'];
+XNULL=[ones(length(Y),1) zeros(length(Y),1)];
+XTRT= [ones(length(Y),1) [zeros(length(PCTRL),1); ones(length(PTRT),1)]];
+mub=[m0; t0];
+Vb=[1 0
+    0 k];
+P0 = loglikelihood(Y,XNULL,mub,Vb,a,b);
+P1 = loglikelihood(Y,XTRT,mub,Vb,a,b);
+[Pr1, Pr2, Pr3]=Prior(PCTRL1,PTRT1);
+
+DP.PO1=P1+Pr1;
+DP.PO0=P0+log((1-exp(Pr1)));
+DP=calcProbs(DP);
+
+DP1.PO1=P1+Pr2;
+DP1.PO0=P0+log((1-exp(Pr2)));
+DP1=calcProbs(DP1);
+
+DP2.PO1=P1+Pr3;
+DP2.PO0=P0+log((1-exp(Pr3)));
+DP2=calcProbs(DP2);
+end
+
